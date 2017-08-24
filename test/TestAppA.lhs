@@ -1,9 +1,11 @@
 > module TestAppA where
 >
 > ------------------------------------------------------------------------------
-> import Test.HUnit
-> import Armor
-> import AppA
+> import           Test.HUnit
+> import qualified Data.Map        as M
+> ------------------------------------------------------------------------------
+> import           Armor
+> import           AppA
 > ------------------------------------------------------------------------------
 
 To actually enable the armoring of your data types, write tests as follows:

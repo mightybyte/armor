@@ -112,7 +112,7 @@ testArmorMany
     => ArmorConfig
     -> Map String a
     -> Test
-testArmorMany ac valMap = TestList $ map doOne $ M.fromList valMap
+testArmorMany ac valMap = TestList $ map doOne $ M.toList valMap
   where
     doOne (k,v) = TestLabel k $ testArmor ac k v
 

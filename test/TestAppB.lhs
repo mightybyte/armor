@@ -1,9 +1,11 @@
 > module TestAppB where
 >
 > ------------------------------------------------------------------------------
-> import Test.HUnit
-> import Armor
-> import AppB
+> import           Test.HUnit
+> import qualified Data.Map        as M
+> ------------------------------------------------------------------------------
+> import           Armor
+> import           AppB
 > ------------------------------------------------------------------------------
 
 Since the new field is a Maybe, we update the old test with a Nothing value
