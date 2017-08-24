@@ -4,21 +4,17 @@
 >
 > ------------------------------------------------------------------------------
 > import           Armor
-> import           Control.Lens
 > import           Data.Aeson
-> import           Data.ByteString      (ByteString)
-> import           Data.ByteString.Lazy (fromStrict, toStrict)
 > import qualified Data.Map             as M
-> import qualified Data.Text            as T
-> import           Data.Text.Encoding
 > import           Data.Typeable
 > import           GHC.Generics
-> import           Text.Read
 > ------------------------------------------------------------------------------
 > import           AppA                 (showPrism, aesonPrism)
 > ------------------------------------------------------------------------------
 
-Time goes by and we discover we need to add a new field to Employee.
+Time goes by and we discover we need to add a new field to Employee. Since we
+care about backwards compatibility and there isn't a reasonable default for the
+age field, we add it as a Maybe.
 
 > data Employee = Employee
 >     { employeeFirstName :: String
@@ -59,3 +55,6 @@ situation and have special alerts to change the version number.
 >         , ("aeson", aesonPrism)
 >         ]
 
+Now go to the TestAppB module to see how we update the tests for the new field.
+
+https://github.com/TaktInc/armor/blob/master/test/TestAppB.lhs

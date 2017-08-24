@@ -2,13 +2,9 @@ module Main where
 
 ------------------------------------------------------------------------------
 import           Armor
-import           Data.Typeable
-import           GHC.Generics
 import           System.Directory
 import           Test.HUnit
 ------------------------------------------------------------------------------
-import qualified AppA as A
-import qualified AppB as B
 import TestAppA
 import TestAppB
 ------------------------------------------------------------------------------
@@ -18,5 +14,10 @@ conf = defConfig
 
 main :: IO ()
 main = do
-    _ <- runTestTT (aTests conf)
+    removeDirectoryRecursive (acStoreDir conf)
+    acount <- runTestTT (aTests conf)
+    bcount <- runTestTT (bTests conf)
+    putStrLn $ "A: " ++ showCounts acount
+    putStrLn $ "B: " ++ showCounts bcount
     return ()
+

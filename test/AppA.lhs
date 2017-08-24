@@ -16,7 +16,6 @@ out of the way first.
 > import qualified Data.Text            as T
 > import           Data.Text.Encoding
 > import           Data.Typeable
-> import           Data.Word
 > import qualified Generics.SOP as SOP
 > import           GHC.Generics
 > import           Text.Read

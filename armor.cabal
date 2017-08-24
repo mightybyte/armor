@@ -34,6 +34,7 @@ test-suite testsuite
   type: exitcode-stdio-1.0
   main-is: Main.hs
 
+  ghc-options: -Wall
   build-depends:
     HUnit,
     aeson        >= 1.2 && < 1.3,

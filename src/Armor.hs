@@ -46,8 +46,8 @@ class Armored a where
 
 ------------------------------------------------------------------------------
 data ArmorConfig = ArmorConfig
-    { ccStoreDir    :: FilePath
-    , ccNumVersions :: Word
+    { acStoreDir    :: FilePath
+    , acNumVersions :: Word
     }
 
 
@@ -60,12 +60,12 @@ defConfig = ArmorConfig "test-data" 1
 -- serialized representations in .test files to be checked into your project's
 -- version control.
 --
--- First, this function checks the directory 'ccStoreDir' for the existence of
+-- First, this function checks the directory 'acStoreDir' for the existence of
 -- a file @foo-000.test@.  If it doesn't exist, it creates it for each
 -- serialization with the serialized representation of the val parameter.
 --
 -- Next, it checks that the serialized formats in the most recent
--- 'ccNumVersions' of the stored @.test@ files are parsable by the current
+-- 'acNumVersions' of the stored @.test@ files are parsable by the current
 -- version of the serialization.
 testArmor
     :: (Eq a, Show a, Typeable a, Armored a)
@@ -73,10 +73,10 @@ testArmor
     -> String
     -> a
     -> Test
-testArmor cc valId val =
+testArmor ac valId val =
     TestList [ testIt s | s <- M.toList serializations ]
   where
-    testIt s = test (testSerialization cc valId val s)
+    testIt s = test (testSerialization ac valId val s)
 
 
 ------------------------------------------------------------------------------
@@ -87,8 +87,8 @@ testSerialization
     -> a
     -> (String, APrism' ByteString a)
     -> Assertion
-testSerialization cc valId val s@(_,p) = do
-    let d = getVersionDir cc val s
+testSerialization ac valId val s@(_,p) = do
+    let d = getVersionDir ac val s
         f = getVersionFilename valId curVer
         fp = d </> f
     createDirectoryIfMissing True d
@@ -99,7 +99,7 @@ testSerialization cc valId val s@(_,p) = do
   where
     curVer :: Version a
     curVer = version
-    vs = reverse [unVersion curVer - ccNumVersions cc .. unVersion curVer]
+    vs = reverse [unVersion curVer - acNumVersions ac .. unVersion curVer]
     assertVersionParses d ver = do
         let f = getVersionFilename valId ver
             fp = d </> f
@@ -121,4 +121,4 @@ getVersionFilename valId ver = printf "%s-%03d.test" valId (unVersion ver)
 
 ------------------------------------------------------------------------------
 getVersionDir :: Typeable a => ArmorConfig -> a -> (FilePath, t) -> FilePath
-getVersionDir cc val (nm,_) = ccStoreDir cc </> show (typeOf val) </> nm
+getVersionDir ac val (nm,_) = acStoreDir ac </> show (typeOf val) </> nm
