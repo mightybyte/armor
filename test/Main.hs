@@ -4,9 +4,10 @@ module Main where
 import           Armor
 import           System.Directory
 import           Test.HUnit
+import           Test.Hspec
 ------------------------------------------------------------------------------
-import TestAppA
-import TestAppB
+import           TestAppA
+import           TestAppB
 ------------------------------------------------------------------------------
 
 conf :: ArmorConfig
@@ -19,5 +20,9 @@ main = do
     bcount <- runTestTT (bTests conf)
     putStrLn $ "A: " ++ showCounts acount
     putStrLn $ "B: " ++ showCounts bcount
-    return ()
+    hspec $ describe "armor tests" $ do
+      it "correctly handles AppA" $
+        Counts 8 8 0 0 == acount
+      it "correctly handles AppB" $
+        Counts 10 10 0 1 == bcount
 

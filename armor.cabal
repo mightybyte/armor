@@ -46,6 +46,7 @@ test-suite testsuite
     containers,
     directory,
     generics-sop >= 0.3 && < 0.4,
+    hspec        >= 2.4 && < 2.5,
     lens,
     text         >= 1.2 && < 1.3
 
