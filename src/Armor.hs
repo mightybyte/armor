@@ -1,7 +1,15 @@
 {-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Armor where
+module Armor
+  ( Version(..)
+  , Serialization
+  , Armored(..)
+  , ArmorConfig(..)
+  , defArmorConfig
+  , testArmor
+  , testArmorMany
+  ) where
 
 ------------------------------------------------------------------------------
 import           Control.Lens
@@ -19,11 +27,13 @@ import           Text.Printf
 
 
 ------------------------------------------------------------------------------
+-- | Version numbers are simple monotonically increasing positive integers.
 newtype Version a = Version { unVersion :: Word }
   deriving (Eq,Ord,Show,Read)
 
 
 ------------------------------------------------------------------------------
+-- | Version has a Show instance so you can use numeric literals.
 instance Num (Version a) where
     Version a + Version b = Version (a+b)
     Version a - Version b = Version (a-b)
@@ -35,24 +45,39 @@ instance Num (Version a) where
 
 
 ------------------------------------------------------------------------------
+-- | A serialization is a tuple of @(a -> ByteString)@ and @(ByteString ->
+-- Maybe a)@.  Represented here as a prism.
 type Serialization a = APrism' ByteString a
 
 
 ------------------------------------------------------------------------------
+-- | Core type class for armoring types.  Includes a version and all the
+-- type's serializations that you want to armor.
 class Armored a where
+  -- | Current version number for the data type.
   version :: Version a
+  -- | Map of serializations keyed by a unique ID used to refer to each
+  -- serialization.
   serializations :: Map String (Serialization a)
 
 
 ------------------------------------------------------------------------------
+-- | Config data for armor tests.
 data ArmorConfig = ArmorConfig
     { acStoreDir    :: FilePath
+    -- ^ Directory where all the test serializations are stored.
     , acNumVersions :: Word
+    -- ^ How many versions back to test for backwards compatibility.  A value
+    -- of 0 means that it only tests that the current version satisfies
+    -- @parse . render == id@.  1 means that it will verify that the previous
+    -- version can still be parse.  2 the previous two versions, etc.
     }
 
 
-defConfig :: ArmorConfig
-defConfig = ArmorConfig "test-data" 1
+------------------------------------------------------------------------------
+-- | Default value for ArmorConfig.
+defArmorConfig :: ArmorConfig
+defArmorConfig = ArmorConfig "test-data" 1
 
 
 ------------------------------------------------------------------------------
@@ -77,6 +102,19 @@ testArmor ac valId val =
     TestList [ testIt s | s <- M.toList serializations ]
   where
     testIt s = test (testSerialization ac valId val s)
+
+
+------------------------------------------------------------------------------
+-- Same as 'testArmor', but more convenient for testing several values of the
+-- same type.
+testArmorMany
+    :: (Eq a, Show a, Typeable a, Armored a)
+    => ArmorConfig
+    -> Map String a
+    -> Test
+testArmorMany ac valMap = TestList $ map doOne $ M.fromList valMap
+  where
+    doOne (k,v) = TestLabel k $ testArmor ac k v
 
 
 ------------------------------------------------------------------------------

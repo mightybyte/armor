@@ -10,7 +10,7 @@ import TestAppB
 ------------------------------------------------------------------------------
 
 conf :: ArmorConfig
-conf = defConfig
+conf = defArmorConfig
 
 main :: IO ()
 main = do
