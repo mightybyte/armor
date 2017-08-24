@@ -11,9 +11,15 @@ To actually enable the armoring of your data types, write tests as follows:
 > aTests :: ArmorConfig -> Test
 > aTests ac = TestList
 >     [ testArmor ac "e1" (Employee "Bob" "Smith" 5)
->     , testArmor ac "e" Executive
->     , testArmor ac "m" Manager
->     , testArmor ac "w" Worker
+>     , testArmorMany ac $ M.fromList
+>         [("e", Executive) , ("m", Manager) , ("w", Worker)]
 >     ]
 
 See the documentation for the `testArmor` function for more detailed information.
+
+With the above tests in your app, you'll see that a number of `.test` files will
+be automatically created that store the serialized data and are used to check
+that they can be correctly parsed.  Eventually you'll need to change the data
+type in some way.  See this file for a case study of how that might play out:
+
+https://github.com/TaktInc/armor/blob/master/test/AppB.lhs

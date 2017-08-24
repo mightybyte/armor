@@ -15,9 +15,8 @@ different `.test` file.
 > bTests ac = TestList
 >     [ testArmor ac "e1" (Employee "Bob" "Smith" 5 Nothing)
 >     , testArmor ac "e2" (Employee "Jane" "Doe" 8 (Just 33))
->     , testArmor ac "e" Executive
->     , testArmor ac "m" Manager
->     , testArmor ac "w" Worker
+>     , testArmorMany ac $ M.fromList
+>         [("e", Executive) , ("m", Manager) , ("w", Worker)]
 >     ]
 
 These new tests will pass for the aeson serialization because the generic aeson
