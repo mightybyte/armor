@@ -92,3 +92,8 @@ package, this is a prism, so that's what we use here.
 > aesonPrism =
 >     prism' (toStrict . encode) (decode . fromStrict)
 >
+
+Once you have defined your `Armored` instances, the next step is to define your
+tests.  To see an example of that go here:
+
+https://github.com/TaktInc/armor/blob/master/test/TestAppA.lhs
