@@ -11,7 +11,6 @@ import qualified Data.ByteString as B
 import           Data.Map        (Map)
 import qualified Data.Map        as M
 import           Data.Typeable
-import           Data.Word
 import           System.Directory
 import           System.FilePath
 import           Test.HUnit.Base
@@ -36,30 +35,45 @@ instance Num (Version a) where
 
 
 ------------------------------------------------------------------------------
-class Armored a where
-  version :: Version a
-  serializations :: Map String (APrism' ByteString a)
+type Serialization a = APrism' ByteString a
 
 
 ------------------------------------------------------------------------------
-data CompatConfig = CompatConfig
+class Armored a where
+  version :: Version a
+  serializations :: Map String (Serialization a)
+
+
+------------------------------------------------------------------------------
+data ArmorConfig = ArmorConfig
     { ccStoreDir    :: FilePath
     , ccNumVersions :: Word
     }
 
 
-defConfig :: CompatConfig
-defConfig = CompatConfig "test-data" 1
+defConfig :: ArmorConfig
+defConfig = ArmorConfig "test-data" 1
 
 
 ------------------------------------------------------------------------------
-testBackwardsCompat
+-- | Tests the serialization backwards compatibility of a data type by storing
+-- serialized representations in .test files to be checked into your project's
+-- version control.
+--
+-- First, this function checks the directory 'ccStoreDir' for the existence of
+-- a file @foo-000.test@.  If it doesn't exist, it creates it for each
+-- serialization with the serialized representation of the val parameter.
+--
+-- Next, it checks that the serialized formats in the most recent
+-- 'ccNumVersions' of the stored @.test@ files are parsable by the current
+-- version of the serialization.
+testArmor
     :: (Eq a, Show a, Typeable a, Armored a)
-    => CompatConfig
+    => ArmorConfig
     -> String
     -> a
     -> Test
-testBackwardsCompat cc valId val =
+testArmor cc valId val =
     TestList [ testIt s | s <- M.toList serializations ]
   where
     testIt s = test (testSerialization cc valId val s)
@@ -68,12 +82,12 @@ testBackwardsCompat cc valId val =
 ------------------------------------------------------------------------------
 testSerialization
     :: forall a. (Eq a, Show a, Typeable a, Armored a)
-    => CompatConfig
+    => ArmorConfig
     -> String
     -> a
     -> (String, APrism' ByteString a)
     -> Assertion
-testSerialization cc valId val s@(nm,p) = do
+testSerialization cc valId val s@(_,p) = do
     let d = getVersionDir cc val s
         f = getVersionFilename valId curVer
         fp = d </> f
@@ -101,9 +115,10 @@ testSerialization cc valId val s@(nm,p) = do
 
 
 ------------------------------------------------------------------------------
-getVersionFilename valId ver =
-    printf "%s-%03d.test" valId (unVersion ver)
+getVersionFilename :: String -> Version a -> String
+getVersionFilename valId ver = printf "%s-%03d.test" valId (unVersion ver)
 
 
 ------------------------------------------------------------------------------
-getVersionDir cc val (nm,p) = ccStoreDir cc </> show (typeOf val) </> nm
+getVersionDir :: Typeable a => ArmorConfig -> a -> (FilePath, t) -> FilePath
+getVersionDir cc val (nm,_) = ccStoreDir cc </> show (typeOf val) </> nm
