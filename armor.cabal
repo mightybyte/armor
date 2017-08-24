@@ -1,7 +1,9 @@
 name:                armor
-version:             0.1.0.0
+version:             0.1
 synopsis:            Armor your data structures against serialization backwards compatibility problems
--- description:         
+description:         Tests the serialization backwards compatibility of data types by storing
+                     serialized representations in .test files to be checked into your project's
+                     version control.
 license:             BSD3
 license-file:        LICENSE
 author:              Doug Beardsley
