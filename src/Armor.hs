@@ -60,7 +60,7 @@ data ArmorConfig = ArmorConfig
 ------------------------------------------------------------------------------
 -- | Default value for ArmorConfig.
 defArmorConfig :: ArmorConfig
-defArmorConfig = ArmorConfig "test-data" (Just 1)
+defArmorConfig = ArmorConfig "test-data" Nothing
 
 
 ------------------------------------------------------------------------------
