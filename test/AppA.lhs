@@ -56,19 +56,19 @@ of serializations you want armored. We'll discuss the serializations in more
 detail below.
 
 One notable point about the serializations is that we need to be able to create
-a unique identifier for them later. So armor requires a `Map String
-(Serialization a)` where the `String` is a unique and hopefully meaningful
+a unique identifier for them later. So armor requires a `Map String (APrism'
+ByteString a)` where the `String` is a unique and hopefully meaningful
 identifier for this serialization.
 
 > instance Armored Employee where
->     version = 0
+>     version = Version 0
 >     serializations = M.fromList
 >         [ ("show", showPrism)
 >         , ("aeson", aesonPrism)
 >         ]
 >
 > instance Armored EmployeeLevel where
->     version = 0
+>     version = Version 0
 >     serializations = M.fromList
 >         [ ("show", showPrism)
 >         , ("aeson", aesonPrism)

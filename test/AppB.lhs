@@ -42,14 +42,14 @@ NOTE / TODO: In the future we may be able to have explicit checking for this
 situation and have special alerts to change the version number.
 
 > instance Armored Employee where
->     version = 1
+>     version = Version 1
 >     serializations = M.fromList
 >         [ ("show", showPrism)
 >         , ("aeson", aesonPrism)
 >         ]
 >
 > instance Armored EmployeeLevel where
->     version = 0
+>     version = Version 0
 >     serializations = M.fromList
 >         [ ("show", showPrism)
 >         , ("aeson", aesonPrism)

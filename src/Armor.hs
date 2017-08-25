@@ -3,7 +3,6 @@
 
 module Armor
   ( Version(..)
-  , Serialization
   , Armored(..)
   , ArmorConfig(..)
   , defArmorConfig
@@ -33,32 +32,15 @@ newtype Version a = Version { unVersion :: Word }
 
 
 ------------------------------------------------------------------------------
--- | Version has a Show instance so you can use numeric literals.
-instance Num (Version a) where
-    Version a + Version b = Version (a+b)
-    Version a - Version b = Version (a-b)
-    Version a * Version b = Version (a*b)
-    negate (Version a) = Version (negate a)
-    abs (Version a) = Version (abs a)
-    signum (Version a) = Version (signum a)
-    fromInteger i = Version (fromInteger i)
-
-
-------------------------------------------------------------------------------
--- | A serialization is a tuple of @(a -> ByteString)@ and @(ByteString ->
--- Maybe a)@.  Represented here as a prism.
-type Serialization a = APrism' ByteString a
-
-
-------------------------------------------------------------------------------
 -- | Core type class for armoring types.  Includes a version and all the
 -- type's serializations that you want to armor.
 class Armored a where
   -- | Current version number for the data type.
   version :: Version a
   -- | Map of serializations keyed by a unique ID used to refer to each
-  -- serialization.
-  serializations :: Map String (Serialization a)
+  -- serialization. A serialization is a tuple of @(a -> ByteString)@ and
+  -- @(ByteString -> Maybe a)@. Represented here as a prism.
+  serializations :: Map String (APrism' ByteString a)
 
 
 ------------------------------------------------------------------------------
