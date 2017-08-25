@@ -48,18 +48,19 @@ class Armored a where
 data ArmorConfig = ArmorConfig
     { acStoreDir    :: FilePath
     -- ^ Directory where all the test serializations are stored.
-    , acNumVersions :: Word
+    , acNumVersions :: Maybe Word
     -- ^ How many versions back to test for backwards compatibility.  A value
-    -- of 0 means that it only tests that the current version satisfies
-    -- @parse . render == id@.  1 means that it will verify that the previous
-    -- version can still be parse.  2 the previous two versions, etc.
+    -- of @Just 0@ means that it only tests that the current version satisfies
+    -- @parse . render == id@.  @Just 1@ means that it will verify that the
+    -- previous version can still be parse.  @Just 2@ the previous two
+    -- versions, etc.  Nothing means that all versions will be tested.
     }
 
 
 ------------------------------------------------------------------------------
 -- | Default value for ArmorConfig.
 defArmorConfig :: ArmorConfig
-defArmorConfig = ArmorConfig "test-data" 1
+defArmorConfig = ArmorConfig "test-data" (Just 1)
 
 
 ------------------------------------------------------------------------------
@@ -119,7 +120,7 @@ testSerialization ac valId val s@(_,p) = do
   where
     curVer :: Version a
     curVer = version
-    vs = reverse [unVersion curVer - acNumVersions ac .. unVersion curVer]
+    vs = reverse [maybe 0 (unVersion curVer -) (acNumVersions ac) .. unVersion curVer]
     assertVersionParses d ver = do
         let f = getVersionFilename valId ver
             fp = d </> f
