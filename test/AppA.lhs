@@ -16,7 +16,6 @@ out of the way first.
 > import qualified Data.Text            as T
 > import           Data.Text.Encoding
 > import           Data.Typeable
-> import qualified Generics.SOP as SOP
 > import           GHC.Generics
 > import           Text.Read
 > ------------------------------------------------------------------------------
@@ -33,12 +32,6 @@ Imagine you have the following data types:
 >   deriving (Eq, Ord, Show, Read, Typeable, Generic)
 
 Ignore this for now.  It's just here for testing.
-
-> instance SOP.Generic Employee
-> instance SOP.HasDatatypeInfo Employee
->
-> instance SOP.Generic EmployeeLevel
-> instance SOP.HasDatatypeInfo EmployeeLevel
 
 You want to store this data in your database as a serialized JSON blob. (That
 might not very plausible for this example, but it's definitely a fairly common

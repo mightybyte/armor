@@ -44,9 +44,24 @@ class Armored a where
 
 
 ------------------------------------------------------------------------------
+-- | The mode of operation for armor test cases.
+data ArmorMode
+  = SaveOnly
+    -- ^ Write test files for serializations that don't have them, but don't
+    -- do any tests to verify that existing files are deserialized properly.
+  | TestOnly
+    -- ^ Run tests to verify that existing files are deserialized properly,
+    -- but don't write any missing files.
+  | SaveAndTest
+    -- ^ Do both the save and test phases.
+  deriving (Eq,Ord,Show,Read,Enum,Bounded)
+
+
+------------------------------------------------------------------------------
 -- | Config data for armor tests.
 data ArmorConfig = ArmorConfig
-    { acStoreDir    :: FilePath
+    { acArmorMode   :: ArmorMode
+    , acStoreDir    :: FilePath
     -- ^ Directory where all the test serializations are stored.
     , acNumVersions :: Maybe Word
     -- ^ How many versions back to test for backwards compatibility.  A value
@@ -60,7 +75,7 @@ data ArmorConfig = ArmorConfig
 ------------------------------------------------------------------------------
 -- | Default value for ArmorConfig.
 defArmorConfig :: ArmorConfig
-defArmorConfig = ArmorConfig "test-data" Nothing
+defArmorConfig = ArmorConfig SaveAndTest "test-data" Nothing
 
 
 ------------------------------------------------------------------------------
@@ -112,11 +127,13 @@ testSerialization ac valId val s@(_,p) = do
     let d = getVersionDir ac val s
         f = getVersionFilename valId curVer
         fp = d </> f
-    createDirectoryIfMissing True d
-    fileExists <- doesFileExist fp
-    when (not fileExists) $
-      B.writeFile fp (review (clonePrism p) val)
-    mapM_ (assertVersionParses d . Version) vs
+    when (acArmorMode ac /= TestOnly) $ do
+      createDirectoryIfMissing True d
+      fileExists <- doesFileExist fp
+      when (not fileExists) $
+        B.writeFile fp (review (clonePrism p) val)
+    when (acArmorMode ac /= SaveOnly) $ do
+      mapM_ (assertVersionParses d . Version) vs
   where
     curVer :: Version a
     curVer = version
