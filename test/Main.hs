@@ -2,6 +2,7 @@ module Main where
 
 ------------------------------------------------------------------------------
 import           Armor
+import           Control.Monad
 import           System.Directory
 import           Test.HUnit
 import           Test.Hspec
@@ -15,7 +16,8 @@ conf = defArmorConfig
 
 main :: IO ()
 main = do
-    removeDirectoryRecursive (acStoreDir conf)
+    exists <- doesDirectoryExist (acStoreDir conf)
+    when exists $ removeDirectoryRecursive (acStoreDir conf)
     acount <- runTestTT (aTests conf)
     bcount <- runTestTT (bTests conf)
     putStrLn $ "A: " ++ showCounts acount
@@ -25,4 +27,5 @@ main = do
         Counts 8 8 0 0 == acount
       it "correctly handles AppB" $
         Counts 10 10 0 1 == bcount
+    removeDirectoryRecursive (acStoreDir conf)
 
