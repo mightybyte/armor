@@ -23,7 +23,6 @@ tested-with:
   GHC==8.2.1,
   GHC==8.4.1
 
-
 Source-repository head
   Type:     git
   Location: https://github.com/mightybyte/armor.git
