@@ -1,5 +1,7 @@
 # Armor
 
+[![Build Status](https://travis-ci.org/mightybyte/armor.svg?branch=master)](https://travis-ci.org/mightybyte/armor)
+
 Armor yourself against backwards-incompatible serializations once and for all.
 
 ## Motivation
