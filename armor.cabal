@@ -49,6 +49,12 @@ test-suite testsuite
   type: exitcode-stdio-1.0
   main-is: Main.hs
 
+  other-modules:
+    AppA
+    AppB
+    TestAppA
+    TestAppB
+
   ghc-options: -Wall
   build-depends:
     HUnit,

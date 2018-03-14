@@ -18,7 +18,9 @@ import qualified Data.ByteString as B
 import           Data.Map        (Map)
 import qualified Data.Map        as M
 import           Data.Typeable
+#if !MIN_VERSION_base(4,8,0)
 import           Data.Word
+#endif
 import           System.Directory
 import           System.FilePath
 import           Test.HUnit.Base
