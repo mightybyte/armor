@@ -18,6 +18,7 @@ import qualified Data.ByteString as B
 import           Data.Map        (Map)
 import qualified Data.Map        as M
 import           Data.Typeable
+import           Data.Word
 import           System.Directory
 import           System.FilePath
 import           Test.HUnit.Base
