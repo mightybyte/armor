@@ -30,3 +30,5 @@ For an overview of how to use this package, [check out the test suite](https://g
 ## Credits
 
 Inspiration for this package came from [Soostone's safecopy-hunit package](https://github.com/Soostone/safecopy-hunit).
+
+Details were refined in production at [Formation](http://formation.ai/).
