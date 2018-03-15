@@ -27,7 +27,8 @@ if your system has any kind of queueing system or message bus, your migrations
 might not be applied to in-flight messages. Clearly we need something to help us
 protect against this problem.  Enter `armor`.
 
-For an overview of how to use this package, [check out the test suite](https://github.com/TaktInc/armor/blob/master/test/AppA.lhs).
+For an overview of how to use this package, check out the [literate Haskell
+tutorial in the test suite](test/AppA.lhs).
 
 ## Credits
 

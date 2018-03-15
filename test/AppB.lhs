@@ -57,4 +57,4 @@ situation and have special alerts to change the version number.
 
 Now go to the TestAppB module to see how we update the tests for the new field.
 
-https://github.com/TaktInc/armor/blob/master/test/TestAppB.lhs
+https://github.com/mightybyte/armor/blob/master/test/TestAppB.lhs

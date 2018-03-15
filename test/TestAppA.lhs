@@ -24,4 +24,4 @@ be automatically created that store the serialized data and are used to check
 that they can be correctly parsed.  Eventually you'll need to change the data
 type in some way.  See this file for a case study of how that might play out:
 
-https://github.com/TaktInc/armor/blob/master/test/AppB.lhs
+https://github.com/mightybyte/armor/blob/master/test/AppB.lhs
