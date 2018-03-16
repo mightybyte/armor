@@ -69,7 +69,7 @@ identifier for this serialization.
 
 This tutorial is a part of the armor test suite, and since we don't want armor
 to depend on any specific serialization packages we're using Show as an example
-of how armor supports any number of serialiaztions.
+of how armor supports any number of serializations.
 
 A serialization is simply a pair of a serialization function that converts your
 data type to ByteString and a deserialization function that converts a
