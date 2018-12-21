@@ -67,7 +67,7 @@ test-suite testsuite
     bytestring,
     containers,
     directory,
-    hspec        >= 2.4 && < 2.6,
+    hspec        >= 2.4 && < 2.7,
     lens,
     text         >= 1.2 && < 1.3
 
