@@ -5,10 +5,12 @@
 module Armor
   ( Version(..)
   , Armored(..)
+  , ArmorMode(..)
   , ArmorConfig(..)
   , defArmorConfig
   , testArmor
   , testArmorMany
+  , testSerialization
   ) where
 
 ------------------------------------------------------------------------------
@@ -103,7 +105,7 @@ testArmor
 testArmor ac valId val =
     TestList [ testIt s | s <- M.toList serializations ]
   where
-    testIt s = test (testSerialization ac valId val s)
+    testIt s = test (testSerialization ac valId s val)
 
 
 ------------------------------------------------------------------------------
@@ -124,10 +126,10 @@ testSerialization
     :: forall a. (Eq a, Show a, Typeable a, Armored a)
     => ArmorConfig
     -> String
-    -> a
     -> (String, APrism' ByteString a)
+    -> a
     -> Assertion
-testSerialization ac valId val s@(_,p) = do
+testSerialization ac valId s@(_,p) val = do
     let d = getVersionDir ac val s
         f = getVersionFilename valId curVer
         fp = d </> f
