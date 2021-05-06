@@ -4,6 +4,10 @@
 
 Armor yourself against backwards-incompatible serializations once and for all.
 
+See the
+[ChangeLog](https://github.com/mightybyte/armor/blob/master/ChangeLog.md) for
+information about changes between versions.
+
 ## Motivation
 
 As almost everyone with significant experience managing production software
