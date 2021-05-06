@@ -141,7 +141,7 @@ testSerialization
     -> Assertion
 testSerialization ac makeFilePath valName (sname,p) val = do
     ensureTestFileExists
-    when (acArmorMode ac /= SaveOnly) $ do
+    when (acArmorMode ac /= SaveOnly) $
       mapM_ (assertVersionParses . Version) vs
   where
     makeGT = GoldenTest val valName sname p
@@ -157,7 +157,7 @@ testSerialization ac makeFilePath valName (sname,p) val = do
         when (not fileExists) $
           B.writeFile fp (review (clonePrism p) val)
     assertVersionParses ver = do
-        let fp = acStoreDir ac </> makeFilePath (makeGT curVer)
+        let fp = acStoreDir ac </> makeFilePath (makeGT ver)
         exists <- doesFileExist fp
         if exists
           then do bs <- B.readFile fp
