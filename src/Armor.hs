@@ -11,6 +11,8 @@ module Armor
   , testArmor
   , testArmorMany
   , testSerialization
+  , GoldenTest(..)
+  , goldenFilePath
   ) where
 
 ------------------------------------------------------------------------------
@@ -18,12 +20,15 @@ import           Control.Lens
 import           Control.Monad
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as B
+import           Data.Char
+import           Data.Hashable
 import           Data.Map        (Map)
 import qualified Data.Map        as M
 import           Data.Typeable
 #if !MIN_VERSION_base(4,8,0)
 import           Data.Word
 #endif
+import           Numeric
 import           System.Directory
 import           System.FilePath
 import           Test.HUnit.Base
@@ -105,11 +110,11 @@ testArmor
 testArmor ac valId val =
     TestList [ testIt s | s <- M.toList serializations ]
   where
-    testIt s = test (testSerialization ac valId s val)
+    testIt s = test (testSerialization ac goldenFilePath valId s val)
 
 
 ------------------------------------------------------------------------------
--- Same as 'testArmor', but more convenient for testing several values of the
+-- | Same as 'testArmor', but more convenient for testing several values of the
 -- same type.
 testArmorMany
     :: (Eq a, Show a, Typeable a, Armored a)
@@ -122,31 +127,37 @@ testArmorMany ac valMap = TestList $ map doOne $ M.toList valMap
 
 
 ------------------------------------------------------------------------------
+-- | Lower level assertion function that works for a wider array of test
+-- frameworks.
 testSerialization
     :: forall a. (Eq a, Show a, Typeable a, Armored a)
     => ArmorConfig
+    -> (GoldenTest a -> FilePath)
+    -- ^ Customizable location where the serializations will be stored. We
+    -- recommend 'goldenFilePath' as a standard out-of-the-box scheme.
     -> String
     -> (String, APrism' ByteString a)
     -> a
     -> Assertion
-testSerialization ac valId s@(_,p) val = do
-    let d = getVersionDir ac val s
-        f = getVersionFilename valId curVer
-        fp = d </> f
-    when (acArmorMode ac /= TestOnly) $ do
-      createDirectoryIfMissing True d
-      fileExists <- doesFileExist fp
-      when (not fileExists) $
-        B.writeFile fp (review (clonePrism p) val)
+testSerialization ac makeFilePath valName (sname,p) val = do
+    ensureTestFileExists
     when (acArmorMode ac /= SaveOnly) $ do
-      mapM_ (assertVersionParses d . Version) vs
+      mapM_ (assertVersionParses . Version) vs
   where
+    makeGT = GoldenTest val valName sname p
     curVer :: Version a
     curVer = version
     vs = reverse [maybe 0 (unVersion curVer -) (acNumVersions ac) .. unVersion curVer]
-    assertVersionParses d ver = do
-        let f = getVersionFilename valId ver
-            fp = d </> f
+    ensureTestFileExists = do
+      let fp = makeFilePath $ makeGT curVer
+          d = dropFileName fp
+      when (acArmorMode ac /= TestOnly) $ do
+        createDirectoryIfMissing True d
+        fileExists <- doesFileExist fp
+        when (not fileExists) $
+          B.writeFile fp (review (clonePrism p) val)
+    assertVersionParses ver = do
+        let fp = makeFilePath $ makeGT ver
         exists <- doesFileExist fp
         if exists
           then do bs <- B.readFile fp
@@ -157,12 +168,31 @@ testSerialization ac valId s@(_,p) val = do
                     Just v -> assertEqual ("File parsed but values didn't match: " ++ fp) val v
           else putStrLn $ "\nSkipping missing file " ++ fp
 
+------------------------------------------------------------------------------
+-- | Data structure that holds all the values needed for a golden test
+data GoldenTest a = GoldenTest
+  { gtTestVal :: a
+  , gtValName :: String
+  , gtSerializationName :: String
+  , gtPrism :: APrism' ByteString a
+  , gtVersion :: Version a
+  }
 
 ------------------------------------------------------------------------------
-getVersionFilename :: String -> Version a -> String
-getVersionFilename valId ver = printf "%s-%03d.test" valId (unVersion ver)
-
-
-------------------------------------------------------------------------------
-getVersionDir :: Typeable a => ArmorConfig -> a -> (FilePath, t) -> FilePath
-getVersionDir ac val (nm,_) = acStoreDir ac </> show (typeOf val) </> nm
+-- | Constructs the FilePath where the serialization will be stored (relative to
+-- the base directory defined in ArmorConfig).
+--
+-- This function uses typeOf as a part of the directory hierarchy to
+-- disambiguate tests for different data types. typeOf can contain single
+-- quotes, spaces, and parenthesis in the case of type constructors that have
+-- type variables so we only take the first alphanumeric characters so that the
+-- paths will be meaningful to humans and then add four characters of the type's
+-- hash for disambiguation.
+goldenFilePath :: Typeable a => GoldenTest a -> FilePath
+goldenFilePath gt =
+    (takeWhile isAlpha ty <> h) </>
+    gtSerializationName gt </>
+    printf "%s-%03d.test" (gtValName gt) (unVersion $ gtVersion gt)
+  where
+    ty = show $ typeOf $ gtTestVal gt
+    h = take 4 $ showHex (hash ty) ""
