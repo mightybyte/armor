@@ -190,9 +190,9 @@ data GoldenTest a = GoldenTest
 -- hash for disambiguation.
 goldenFilePath :: Typeable a => GoldenTest a -> FilePath
 goldenFilePath gt =
-    (takeWhile isAlpha ty <> h) </>
+    (concat [takeWhile isAlpha ty, "-", h]) </>
     gtSerializationName gt </>
     printf "%s-%03d.test" (gtValName gt) (unVersion $ gtVersion gt)
   where
     ty = show $ typeOf $ gtTestVal gt
-    h = take 4 $ showHex (hash ty) ""
+    h = take 4 $ showHex (abs $ hash ty) ""
