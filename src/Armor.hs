@@ -149,7 +149,7 @@ testSerialization ac makeFilePath valName (sname,p) val = do
     curVer = version
     vs = reverse [maybe 0 (unVersion curVer -) (acNumVersions ac) .. unVersion curVer]
     ensureTestFileExists = do
-      let fp = makeFilePath $ makeGT curVer
+      let fp = acStoreDir ac </> makeFilePath (makeGT curVer)
           d = dropFileName fp
       when (acArmorMode ac /= TestOnly) $ do
         createDirectoryIfMissing True d
@@ -157,7 +157,7 @@ testSerialization ac makeFilePath valName (sname,p) val = do
         when (not fileExists) $
           B.writeFile fp (review (clonePrism p) val)
     assertVersionParses ver = do
-        let fp = makeFilePath $ makeGT ver
+        let fp = acStoreDir ac </> makeFilePath (makeGT curVer)
         exists <- doesFileExist fp
         if exists
           then do bs <- B.readFile fp

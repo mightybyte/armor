@@ -34,7 +34,7 @@ The EmployeeLevel data type stays the same.
 > instance FromJSON EmployeeLevel
 > instance ToJSON EmployeeLevel
 
-We update the `Armored` instance to version 1. If you forget to updated the
+We update the `Armored` instance to version 1. If you forget to update the
 version, the armor tests should still fail because the existing version 0
 serialization files will not be overwritten.
 
