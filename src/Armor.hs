@@ -129,6 +129,17 @@ testArmorMany ac valMap = TestList $ map doOne $ M.toList valMap
 ------------------------------------------------------------------------------
 -- | Lower level assertion function that works for a wider array of test
 -- frameworks.
+--
+-- This function can make two different assertions. It fails if the values fail
+-- to parse, and it asserts that the values are equal to the expected value.
+-- This latter assertion is only done for the most recent version because
+-- changes that impact the structure of a data type can result in erroneous
+-- failures due to changes in the order that the test cases are generated.
+--
+-- In other words, if you make an innocuous change like adding a constructor and
+-- start getting "values didn't match" failures, all you need to do is bump the
+-- data type's version. Armor will still guarantee that those serializations
+-- parse properly but the incorrect value failures will be suppressed.
 testSerialization
     :: forall a. (Eq a, Show a, Typeable a, Armored a)
     => ArmorConfig
@@ -165,7 +176,8 @@ testSerialization ac makeFilePath valName (sname,p) val = do
                     Nothing -> assertFailure $
                       printf "Not backwards compatible with version %d: %s"
                              (unVersion ver) fp
-                    Just v -> assertEqual ("File parsed but values didn't match: " ++ fp) val v
+                    Just v -> when (ver == curVer) $
+                      assertEqual ("File parsed but values didn't match: " ++ fp) val v
           else putStrLn $ "\nSkipping missing file " ++ fp
 
 ------------------------------------------------------------------------------
