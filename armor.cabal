@@ -1,5 +1,5 @@
 name:                armor
-version:             0.2
+version:             0.2.0.1
 synopsis:            Prevent serialization backwards compatibility problems using golden tests
 description:         Tests the serialization backwards compatibility of data types by storing
                      serialized representations in .test files to be checked into your project's
