@@ -1,5 +1,6 @@
-{-# LANGUAGE CPP                 #-}
-{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Armor
@@ -39,7 +40,7 @@ import           Text.Printf
 ------------------------------------------------------------------------------
 -- | Version numbers are simple monotonically increasing positive integers.
 newtype Version a = Version { unVersion :: Word }
-  deriving (Eq,Ord,Show,Read)
+  deriving (Eq,Ord,Show,Read,Num,Enum)
 
 
 ------------------------------------------------------------------------------
@@ -80,13 +81,14 @@ data ArmorConfig = ArmorConfig
     -- @parse . render == id@.  @Just 1@ means that it will verify that the
     -- previous version can still be parse.  @Just 2@ the previous two
     -- versions, etc.  Nothing means that all versions will be tested.
+    , acRemoveDuplicates :: Bool
     }
 
 
 ------------------------------------------------------------------------------
 -- | Default value for ArmorConfig.
 defArmorConfig :: ArmorConfig
-defArmorConfig = ArmorConfig SaveAndTest "test-data" Nothing
+defArmorConfig = ArmorConfig SaveAndTest "test-data" Nothing True
 
 
 ------------------------------------------------------------------------------
@@ -165,8 +167,15 @@ testSerialization ac makeFilePath valName (sname,p) val = do
       when (acArmorMode ac /= TestOnly) $ do
         createDirectoryIfMissing True d
         fileExists <- doesFileExist fp
-        when (not fileExists) $
-          B.writeFile fp (review (clonePrism p) val)
+        when (not fileExists) $ do
+          let newBytes = review (clonePrism p) val
+          B.writeFile fp newBytes
+          when (acRemoveDuplicates ac && curVer > 0) $ do
+            let prevFp = acStoreDir ac </> makeFilePath (makeGT $ pred curVer)
+            exists <- doesFileExist prevFp
+            when exists $ do
+              oldBytes <- B.readFile prevFp
+              when (oldBytes == newBytes) $ removeFile prevFp
     assertVersionParses ver = do
         let fp = acStoreDir ac </> makeFilePath (makeGT ver)
         exists <- doesFileExist fp
